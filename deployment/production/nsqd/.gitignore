@@ -1,0 +1,4 @@
+configmaps/*
+!configmaps/*.example
+
+nsq-nsqd-pod.yaml

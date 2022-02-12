@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: nsq-nsqlookupd-pod
+  name: nsq-nsqlookupd-pod
+  annotations:
+    seccomp.security.alpha.kubernetes.io/pod: localhost/default.json
+spec:
+  restartPolicy: OnFailure
+  hostNetwork: true
+  containers:
+  - name: srv01
+    image: docker.io/nsqio/nsq:v1.2.1
+    command: ['nsqlookupd']
+    args: ['--log-level=info']
+    securityContext:
+      allowPrivilegeEscalation: false
+      privileged: false
+      capabilities:
+        add: []
+        drop:
+        - CAP_MKNOD
+        - CAP_NET_RAW
+        - CAP_AUDIT_WRITE
+      seLinuxOptions:
+        type: nsq_nsqlookupd.process
+    resources:
+      requests:
+        memory: 100Mi
+        cpu: 1000m
+      limits:
+        memory: 100Mi
+        cpu: 1000m

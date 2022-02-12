@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: nsq-nsqd-pod
+  name: nsq-nsqd-pod
+  annotations:
+    seccomp.security.alpha.kubernetes.io/pod: localhost/default.json
+spec:
+  restartPolicy: OnFailure
+  hostNetwork: true
+  containers:
+  - name: srv01
+    image: docker.io/nsqio/nsq:v1.2.1
+    command: ['nsqd']
+    args: ['--lookupd-tcp-address=127.0.0.1:4160', '--broadcast-address=127.0.0.1', '--max-msg-size=2147483640', '--log-level=info']
+    securityContext:
+      allowPrivilegeEscalation: false
+      privileged: false
+      capabilities:
+        add: []
+        drop:
+        - CAP_MKNOD
+        - CAP_NET_RAW
+        - CAP_AUDIT_WRITE
+      seLinuxOptions:
+        type: nsq_nsqd.process
+    resources:
+      requests:
+        memory: 100Mi
+        cpu: 1000m
+      limits:
+        memory: 100Mi
+        cpu: 1000m
+    volumeMounts:
+    - mountPath: /data
+      name: nsq-nsqd-data
+  volumes:
+  - name: nsq-nsqd-data
+    persistentVolumeClaim:
+      claimName: nsq-nsqd-data
